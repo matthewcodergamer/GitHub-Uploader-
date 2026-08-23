@@ -348,3 +348,10 @@ progress { width: 100%; height: 4px; margin-top: 15px; border: 0; accent-color: 
 .log-panel pre { max-height: 270px; overflow: auto; margin: 10px 0 0; padding: 12px; border-radius: 13px; background: var(--field); color: var(--text); font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }
 
 footer { padding: 7px 8px 0; text-align: center; color: var(--muted-2); font-size: 11px; }
+
+/* Startup safety screen: never leave the user with a silent black page. */
+.fatal-screen{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--bg);color:var(--text)}
+.fatal-card{width:min(430px,100%);padding:24px;border-radius:24px;background:var(--surface);box-shadow:var(--shadow);text-align:center}
+.fatal-card strong{display:block;font-size:22px;letter-spacing:-.4px;margin-bottom:8px}
+.fatal-card p{margin:0 0 16px;color:var(--muted);line-height:1.45;overflow-wrap:anywhere}
+.fatal-card button{min-width:120px}
