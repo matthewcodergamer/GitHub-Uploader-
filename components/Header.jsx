@@ -29,7 +29,7 @@ export function Header({ theme, onToggleTheme }) {
       </div>
 
       <div className="header-actions">
-        <span className="version-pill">v16</span>
+        <span className="version-pill">v16.1</span>
         <button className="icon-button theme-toggle" type="button" onClick={onToggleTheme} aria-label="Switch appearance">
           {theme === 'light' ? <SunIcon /> : <MoonIcon />}
         </button>
