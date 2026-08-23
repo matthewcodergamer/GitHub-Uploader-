@@ -98,7 +98,7 @@ export function ProjectPicker({ uploader }) {
         <span>Or use the controls above.</span>
       </div>
 
-      <div className="auto-organize"><span className="green-dot" />Auto-organize on</div>
+      <div className="auto-organize"><span className="green-dot" />Auto-organize &amp; safe repair on</div>
 
       <details className="options-panel">
         <summary>Options</summary>
