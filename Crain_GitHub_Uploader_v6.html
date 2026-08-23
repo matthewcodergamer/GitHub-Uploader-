@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Crain — GitHub Repo Uploader v6</title>
+<style>
+:root{
+  --bg:#08090d;--panel:rgba(18,20,27,.92);--panel2:#181b24;--panel3:#0d0f15;
+  --line:#282d39;--line2:#343a49;--text:#f7f7fa;--muted:#9ca4b3;
+  --accent:#6f68ff;--accent2:#8d87ff;--danger:#ff747c;--dangerBg:#30171b;
+  --ok:#56d879;--warn:#f5bb59;--shadow:0 18px 60px rgba(0,0,0,.28)
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:var(--text);overflow-x:hidden;
+  -webkit-text-size-adjust:100%;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Inter,Roboto,Arial,sans-serif}
+body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+button,input,textarea{font:inherit}button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.app{max-width:900px;margin:0 auto;padding:18px}
+.head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:2px 0 16px}
+.brand{display:flex;gap:12px;align-items:center;min-width:0}
+.logo{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,#5b54ff,#918aff);display:grid;place-items:center;
+  font-weight:850;box-shadow:0 9px 28px rgba(112,104,255,.26);flex:none}
+h1{font-size:21px;letter-spacing:-.35px;margin:0}.sub{color:var(--muted);font-size:12px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:68vw}
+.pill{display:inline-flex;align-items:center;height:26px;padding:0 9px;border:1px solid var(--line);border-radius:999px;color:#c5c9d3;background:#11141b;font-size:11px;font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:14px;box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.card h2{font-size:16px;letter-spacing:-.15px;margin:0 0 14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.full{grid-column:1/-1}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+input,textarea{width:100%;min-height:46px;background:var(--panel3);color:var(--text);border:1px solid var(--line);border-radius:13px;padding:11px 13px;font-size:16px;outline:none;transition:border-color .15s,background .15s}
+input:focus,textarea:focus{border-color:#6762e8;background:#10131b}input.invalid{border-color:#863b43;background:#1b0f12}
+button{border:0;border-radius:13px;min-height:44px;padding:10px 14px;font-weight:750;cursor:pointer;background:var(--panel2);color:var(--text);font-size:14px}
+button:active{transform:scale(.985)}button.primary{background:linear-gradient(180deg,#7770ff,#625bfa);color:white;box-shadow:0 8px 24px rgba(101,94,255,.24)}
+button.danger{color:#ffb5ba;background:var(--dangerBg)}button:disabled{opacity:.5;cursor:not-allowed;transform:none}.mutedBtn{color:var(--muted)}
+.row{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.tokenWrap{display:flex;gap:8px}.tokenWrap input{flex:1;min-width:0}
+.repoLabelRow{display:flex;align-items:center;gap:7px;margin-bottom:6px}.repoLabelRow label{margin:0}
+.accountBar{display:flex;align-items:center;gap:10px;padding:10px 11px;margin-top:11px;border:1px solid var(--line);border-radius:15px;background:#0d1016;min-height:54px}
+.avatar{width:36px;height:36px;border-radius:50%;object-fit:cover;background:#20232d;border:1px solid var(--line)}
+.accountText{min-width:0;flex:1}.accountText b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.accountText span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
+.repoPicker{display:none;margin-top:12px;border:1px solid var(--line);border-radius:15px;background:#0b0d12;overflow:hidden}.repoPicker.show{display:block}
+.repoPickerHead{display:flex;gap:8px;align-items:center;padding:10px;border-bottom:1px solid var(--line)}.repoPickerHead input{flex:1}.repoList{max-height:330px;overflow:auto;padding:6px}
+.repoItem{width:100%;display:flex;text-align:left;align-items:center;justify-content:space-between;gap:10px;padding:11px;background:transparent;border-radius:10px;font-weight:500}.repoItem:hover,.repoItem:focus{background:#171a22}
+.repoItemMain{min-width:0}.repoItemMain b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.repoItemMain span{display:block;color:var(--muted);font-size:11px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.repoMeta{font-size:10px;color:var(--muted);white-space:nowrap}
+.saveRow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:10px}.saveRow label{display:flex;align-items:center;gap:7px;margin:0;color:var(--muted);font-size:12px}.saveRow input[type=checkbox]{width:auto;min-height:0}
+.tip{position:relative;display:inline-flex;vertical-align:middle}.tipBtn{width:22px;height:22px;min-height:22px;border-radius:50%;padding:0;display:grid;place-items:center;background:#222631;color:#c7ccda;font-size:12px}.tipBubble{display:none;position:absolute;z-index:100;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);min-width:220px;max-width:min(320px,80vw);padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#191c24;color:#d7dbe4;font-size:11px;line-height:1.45;box-shadow:0 12px 35px rgba(0,0,0,.4)}.tip:hover .tipBubble,.tip:focus-within .tipBubble,.tip.open .tipBubble{display:block}
+.tiny{font-size:12px;color:var(--muted);line-height:1.45}
+.importActions{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;margin-bottom:10px}.importActions button{min-height:48px}.importActions .danger{padding-inline:16px}
+.drop{border:1px dashed #3d4454;border-radius:16px;padding:20px;text-align:center;color:var(--muted);background:#0c0f15;transition:.15s}.drop.drag{border-color:var(--accent);background:#121328;color:white}.drop strong{display:block;color:var(--text);font-size:15px;margin-bottom:3px}.drop .tiny{margin-top:5px}
+.autoLine{display:flex;align-items:center;gap:7px;margin-top:10px;color:#aeb5c3;font-size:12px}.autoDot{width:7px;height:7px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 4px rgba(86,216,121,.09)}
+.advancedGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.advancedGrid .row{flex-wrap:nowrap}
+.selectionSummary{display:flex;align-items:center;gap:11px;margin-top:13px;padding:12px;border:1px solid var(--line);border-radius:15px;background:#0d1016}.selectionSummary.empty{opacity:.82}.summaryMark{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#1a2030;color:#cbd0dc;font-weight:900;flex:none}.selectionSummary.ok .summaryMark{background:rgba(86,216,121,.12);color:#78ec94}.selectionSummary.bad .summaryMark{background:rgba(255,116,124,.12);color:#ff9299}.summaryText{min-width:0;flex:1}.summaryText b{display:block;font-size:13px}.summaryText span{display:block;color:var(--muted);font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.summaryBadge{font-size:10px;color:#aeb5c3;border:1px solid var(--line);border-radius:999px;padding:5px 8px;white-space:nowrap}
+.validation{display:none;margin-top:9px;padding:9px 11px;border-radius:11px;font-size:12px;line-height:1.4}.validation.bad{display:block;color:#ffb4b9;background:#241216;border:1px solid #5d2a31}
+.reviewPanel{margin-top:10px;border:1px solid var(--line);border-radius:15px;background:#0b0e14;overflow:hidden}.reviewPanel[hidden]{display:none}.reviewPanel>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px;cursor:pointer;font-size:13px;font-weight:750}.reviewPanel>summary::-webkit-details-marker{display:none}.reviewPanel>summary:after{content:'›';font-size:21px;line-height:1;color:#8f96a5;transform:rotate(90deg);transition:transform .16s}.reviewPanel[open]>summary:after{transform:rotate(-90deg)}.reviewMeta{color:var(--muted);font-size:11px;font-weight:600;margin-left:auto}
+.files{display:flex;flex-direction:column;border-top:1px solid var(--line)}.file{padding:12px 13px;border-bottom:1px solid #202531;background:#0b0e14}.file:last-child{border-bottom:0}.file.bad{background:#170d10}.fileTop{display:flex;align-items:center;gap:9px}.fileGlyph{width:30px;height:30px;border-radius:9px;background:#151a24;display:grid;place-items:center;color:#c7ccda;font-size:14px;flex:none}.fileName{min-width:0;flex:1}.fileName b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px}.fileName span{display:block;font-size:10px;color:var(--muted);margin-top:2px}.removeBtn{width:34px;height:34px;min-height:34px;padding:0;border-radius:10px;color:#ff9da3;background:transparent;font-size:20px;font-weight:500}
+.pathMap{display:grid;grid-template-columns:minmax(0,1fr) 22px minmax(0,1fr);align-items:end;gap:8px;margin-top:10px}.pathSide{min-width:0}.pathLabel{display:block;font-size:10px;color:#7f8795;margin-bottom:5px;text-transform:uppercase;letter-spacing:.45px}.sourcePath{height:39px;display:flex;align-items:center;padding:0 10px;border:1px solid #222733;border-radius:10px;background:#0a0c11;color:#aeb5c2;font:12px ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.path{min-height:39px;height:39px;padding:8px 10px;border-radius:10px;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}.pathArrow{height:39px;display:grid;place-items:center;color:#626a79;font-size:16px}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}.dot{width:8px;height:8px;border-radius:50%;background:#626878}.dot.ok{background:var(--ok)}.dot.bad{background:var(--danger)}.dot.busy{background:var(--warn)}
+.pushRow{display:flex;align-items:center;justify-content:space-between;gap:12px}.pushRow .primary{min-width:190px}progress{width:100%;height:7px;accent-color:var(--accent);margin-top:13px}.errorBox{display:none;margin-top:12px;padding:11px;border:1px solid #6f3035;background:#1b0f12;color:#ffc5c5;border-radius:12px;font-size:13px;line-height:1.45}.errorBox.show{display:block}
+.logPanel{margin-top:10px;border-top:1px solid var(--line);padding-top:9px}.logPanel summary{cursor:pointer;color:var(--muted);font-size:12px}.logPanel pre{background:#090b0f;border:1px solid var(--line);padding:11px;border-radius:11px;overflow:auto;max-height:260px;color:#c8ced8;font-size:11px;white-space:pre-wrap;margin-bottom:0}
+.footer{color:#747c8a;font-size:11px;text-align:center;padding:5px 8px 12px}code{color:#d6d2ff}
+@media(max-width:700px){
+  .app{padding:12px}.card{padding:15px;border-radius:19px}.grid,.advancedGrid{grid-template-columns:1fr}.full{grid-column:auto}.head{align-items:center}.sub{max-width:60vw}
+  .importActions{grid-template-columns:1fr 1fr}.importActions .danger{grid-column:1/-1;justify-self:start;min-height:40px}.pathMap{grid-template-columns:1fr}.pathArrow{display:none}.pathSide+.pathSide{margin-top:1px}.pushRow{align-items:stretch;flex-direction:column}.pushRow .primary{width:100%}.row.repoMain{flex-wrap:wrap!important}.row.repoMain input{flex-basis:100%}.row.repoMain button{width:100%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div class="brand">
+      <div class="logo">C</div>
+      <div>
+        <h1>Crain</h1>
+        <div class="sub">Folder-aware GitHub uploader</div>
+      </div>
+    </div>
+    <span class="pill">v6</span>
+  </div>
+
+  <div class="card">
+    <h2>1. GitHub</h2>
+    <div class="grid">
+      <div class="full">
+        <div class="repoLabelRow">
+          <label>Repository</label>
+          <span class="tip">
+            <button class="tipBtn" type="button" aria-label="Repository help">?</button>
+            <span class="tipBubble">You can type <b>owner/repo</b>, paste a full GitHub URL, or press <b>Browse My Repos</b> and choose one from your account.</span>
+          </span>
+        </div>
+        <div class="row repoMain" style="flex-wrap:nowrap">
+          <input id="repo" placeholder="matthewcodergamer/arena-pocket-ide" autocomplete="off">
+          <button id="browseRepos" type="button">Browse My Repos</button>
+        </div>
+
+        <div id="repoPicker" class="repoPicker">
+          <div class="repoPickerHead">
+            <input id="repoSearch" placeholder="Search your GitHub repositories…" autocomplete="off">
+            <button id="closeRepoPicker" type="button">Close</button>
+          </div>
+          <div id="repoList" class="repoList">
+            <div class="tiny" style="padding:12px">Connect GitHub to load your repositories.</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label>Branch</label>
+        <input id="branch" value="main" placeholder="main">
+      </div>
+      <div>
+        <label>Commit message</label>
+        <input id="message" value="Update from Crain">
+      </div>
+
+      <div class="full">
+        <div class="repoLabelRow">
+          <label>GitHub token</label>
+          <span class="tip">
+            <button class="tipBtn" type="button" aria-label="Token help">?</button>
+            <span class="tipBubble">Use a fine-grained personal access token with access to this repository and <b>Contents: Read and write</b>. If you upload a workflow file, grant <b>Workflows: Read and write</b> too.</span>
+          </span>
+        </div>
+
+        <div class="tokenWrap">
+          <input id="token" type="password" autocomplete="off" spellcheck="false"
+                 placeholder="Fine-grained GitHub token">
+          <button id="showToken" type="button">Show</button>
+        </div>
+
+        <div class="saveRow">
+          <label>
+            <input id="rememberToken" type="checkbox" checked>
+            Remember token on this device
+          </label>
+          <button id="saveConnection" type="button">Save Connection</button>
+          <button id="forgetConnection" class="mutedBtn" type="button">Forget Saved Token</button>
+        </div>
+
+        <div id="accountBar" class="accountBar">
+          <div class="avatar" id="avatarFallback" style="display:grid;place-items:center;font-weight:800">GH</div>
+          <img id="accountAvatar" class="avatar" alt="" style="display:none">
+          <div class="accountText">
+            <b id="accountName">Not connected</b>
+            <span id="accountMeta">Enter your token, then test access or browse repositories.</span>
+          </div>
+          <button id="testRepo" type="button">Connect</button>
+        </div>
+
+        <div id="repoTestText" class="tiny" style="margin-top:7px">
+          Saved connection is loaded automatically when available.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Add project</h2>
+    <div class="importActions">
+      <button id="chooseFiles" type="button">Choose Files</button>
+      <button id="chooseFolder" type="button">Choose Folder</button>
+      <button id="clearFiles" class="danger" type="button">Clear</button>
+      <input id="fileInput" type="file" multiple hidden>
+      <input id="folderInput" type="file" multiple webkitdirectory directory hidden>
+    </div>
+
+    <div id="drop" class="drop">
+      <strong>Drop files or folders here</strong>
+      <div class="tiny">Or use the buttons above.</div>
+    </div>
+
+    <div class="autoLine"><span class="autoDot"></span><span>Folders preserved • paths organized automatically</span></div>
+
+    <div class="advancedGrid">
+      <div>
+        <label>Destination prefix <span class="tiny">(optional)</span></label>
+        <input id="prefix" placeholder="Leave blank for repository root">
+      </div>
+      <div>
+        <label>Add empty folder <span class="tiny">(.gitkeep)</span></label>
+        <div class="row" style="flex-wrap:nowrap">
+          <input id="emptyFolder" placeholder="textures">
+          <button id="addFolder" type="button">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="selectionSummary" class="selectionSummary empty">
+      <div id="summaryMark" class="summaryMark">+</div>
+      <div class="summaryText">
+        <b id="selectionTitle">No files selected</b>
+        <span id="selectionMeta">Choose files, a folder, or drop a project.</span>
+      </div>
+      <span id="summaryBadge" class="summaryBadge" hidden>Auto</span>
+    </div>
+
+    <div id="validation" class="validation"></div>
+
+    <details id="reviewPanel" class="reviewPanel" hidden>
+      <summary><span>Review paths</span><span id="reviewCount" class="reviewMeta"></span></summary>
+      <div id="files" class="files"></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <h2>3. Push</h2>
+    <div class="pushRow">
+      <div class="status"><span id="dot" class="dot"></span><span id="status">Ready</span></div>
+      <button id="push" class="primary">Upload & Push</button>
+    </div>
+    <div id="errorBox" class="errorBox"></div>
+    <progress id="progress" value="0" max="1"></progress>
+    <details class="logPanel">
+      <summary>Upload details</summary>
+      <pre id="log">Nothing pushed yet.</pre>
+    </details>
+  </div>
+
+
+  <div class="footer">Crain connects directly to GitHub. For iPhone, open this page from an HTTPS host in Safari.</div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+const $ = s => document.querySelector(s);
+const state = { items: [], repos: [], githubUser: null };
+
+const nameMap = {
+  'styles.css':'styles.css',
+  'manifest.webmanifest':'manifest.webmanifest',
+  'README.md':'README.md',
+  'app.js':'app.js',
+  'index.html':'index.html',
+  'SECURITY.md':'SECURITY.md',
+  'sw.js':'sw.js',
+  '404.html':'404.html',
+  '.nojekyll':'.nojekyll',
+  '.gitignore':'.gitignore',
+  'icon-192.png':'icons/icon-192.png',
+  'icon-512.png':'icons/icon-512.png',
+  'apple-touch-icon.png':'icons/apple-touch-icon.png',
+  'pages.yml':'.github/workflows/pages.yml',
+  'wrangler.toml':'worker/wrangler.toml',
+  '.dev.vars.example':'worker/.dev.vars.example'
+};
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function escapeAttr(s){ return escapeHtml(s); }
+function prettySize(n){
+  if(n < 1024) return n+' B';
+  if(n < 1024*1024) return (n/1024).toFixed(1)+' KB';
+  return (n/1024/1024).toFixed(1)+' MB';
+}
+function cleanPath(path){
+  return String(path||'').replace(/\\/g,'/').replace(/^\/+/,'').replace(/\/+/g,'/')
+    .split('/').filter(p => p && p!=='.' && p!=='..').join('/');
+}
+function encodeRepoPath(path){
+  return cleanPath(path).split('/').map(encodeURIComponent).join('/');
+}
+
+const CONNECTION_KEY='crainGithubConnectionV1';
+
+function saveConnectionSettings(showMessage=true){
+  const remember=$('#rememberToken').checked;
+  const data={
+    token:remember?$('#token').value.trim():'',
+    repo:$('#repo').value.trim(),
+    branch:$('#branch').value.trim()||'main',
+    remember
+  };
+  try{
+    localStorage.setItem(CONNECTION_KEY,JSON.stringify(data));
+    if(showMessage) $('#repoTestText').textContent=remember?'GitHub connection saved on this device.':'Repository saved; token will not be remembered.';
+  }catch(e){
+    if(showMessage) showError(new Error('Could not save the GitHub connection in this browser.'));
+  }
+}
+
+function loadConnectionSettings(){
+  try{
+    const raw=localStorage.getItem(CONNECTION_KEY);
+    if(!raw) return;
+    const data=JSON.parse(raw);
+    if(data.repo) $('#repo').value=data.repo;
+    if(data.branch) $('#branch').value=data.branch;
+    $('#rememberToken').checked=data.remember!==false;
+    if(data.remember && data.token){
+      $('#token').value=data.token;
+      $('#repoTestText').textContent='Saved token loaded. Press Connect or Browse My Repos.';
+    }
+  }catch(e){
+    console.warn('Could not load saved Crain connection',e);
+  }
+}
+
+function forgetConnectionSettings(){
+  localStorage.removeItem(CONNECTION_KEY);
+  $('#token').value='';
+  $('#rememberToken').checked=false;
+  state.githubUser=null;
+  $('#accountName').textContent='Not connected';
+  $('#accountMeta').textContent='Saved token removed from this browser.';
+  $('#accountAvatar').style.display='none';
+  $('#avatarFallback').style.display='grid';
+  $('#repoTestText').textContent='Saved GitHub token forgotten.';
+}
+
+function updateAccountUI(user){
+  state.githubUser=user||null;
+  if(!user){
+    $('#accountName').textContent='Not connected';
+    $('#accountMeta').textContent='Enter your token, then connect.';
+    $('#accountAvatar').style.display='none';
+    $('#avatarFallback').style.display='grid';
+    return;
+  }
+  $('#accountName').textContent=user.name?`${user.name} (@${user.login})`:`@${user.login}`;
+  $('#accountMeta').textContent=`${user.public_repos??0} public repos · GitHub connection ready`;
+  if(user.avatar_url){
+    $('#accountAvatar').src=user.avatar_url;
+    $('#accountAvatar').style.display='block';
+    $('#avatarFallback').style.display='none';
+  }
+}
+
+async function connectGitHubAccount(){
+  resetError();
+  setStatus('Connecting to GitHub…','busy');
+  const user=await gh('/user');
+  updateAccountUI(user);
+  saveConnectionSettings(false);
+  setStatus('GitHub connected','ok');
+  $('#repoTestText').textContent=`Connected as @${user.login}.`;
+  return user;
+}
+
+async function loadMyRepos(){
+  resetError();
+  $('#repoPicker').classList.add('show');
+  $('#repoList').innerHTML='<div class="tiny" style="padding:12px">Loading your repositories…</div>';
+  setStatus('Loading GitHub repositories…','busy');
+
+  if(!state.githubUser) await connectGitHubAccount();
+
+  const all=[];
+  for(let page=1;page<=5;page++){
+    const list=await gh(`/user/repos?per_page=100&page=${page}&sort=updated&direction=desc&affiliation=owner,collaborator,organization_member`);
+    if(!Array.isArray(list)) break;
+    all.push(...list);
+    if(list.length<100) break;
+  }
+  state.repos=all;
+  renderRepoList();
+  setStatus(`Loaded ${all.length} repositories`,'ok');
+}
+
+function renderRepoList(){
+  const q=$('#repoSearch').value.trim().toLowerCase();
+  const filtered=state.repos.filter(r=>{
+    const hay=[r.full_name,r.name,r.description||''].join(' ').toLowerCase();
+    return !q || hay.includes(q);
+  });
+
+  const root=$('#repoList');
+  if(!filtered.length){
+    root.innerHTML='<div class="tiny" style="padding:12px">No matching repositories.</div>';
+    return;
+  }
+
+  root.innerHTML='';
+  for(const repo of filtered){
+    const b=document.createElement('button');
+    b.type='button';
+    b.className='repoItem';
+    const updated=repo.updated_at?new Date(repo.updated_at).toLocaleDateString():'';
+    b.innerHTML=`
+      <span class="repoItemMain">
+        <b>${escapeHtml(repo.full_name)}</b>
+        <span>${escapeHtml(repo.description||'No description')}</span>
+      </span>
+      <span class="repoMeta">${repo.private?'Private':'Public'}${updated?' · '+escapeHtml(updated):''}</span>
+    `;
+    b.addEventListener('click',()=>{
+      $('#repo').value=repo.full_name;
+      $('#branch').value=repo.default_branch||'main';
+      $('#repoPicker').classList.remove('show');
+      saveConnectionSettings(false);
+      $('#repoTestText').textContent=`Selected ${repo.full_name}.`;
+    });
+    root.appendChild(b);
+  }
+}
+
+function parseRepo(value){
+  let s=String(value||'').trim();
+  s=s.replace(/^https?:\/\/github\.com\//i,'').replace(/\.git$/i,'').replace(/^\/+|\/+$/g,'');
+  const parts=s.split('/').filter(Boolean);
+  if(parts.length<2) throw new Error('Repository must look like owner/repo or a GitHub repository URL.');
+  return {owner:parts[0],repo:parts[1],full:`${parts[0]}/${parts[1]}`};
+}
+function resetError(){
+  $('#errorBox').classList.remove('show');
+  $('#errorBox').textContent='';
+}
+function showError(err){
+  const msg = String(err?.message || err || 'Unknown error');
+  $('#errorBox').textContent = msg;
+  $('#errorBox').classList.add('show');
+  $('#status').textContent='Cannot push';
+  $('#dot').className='dot bad';
+  log('ERROR: '+msg);
+}
+function log(msg){
+  const box=$('#log');
+  if(box.textContent==='Nothing pushed yet.') box.textContent='';
+  box.textContent += (box.textContent?'\n':'')+msg;
+  box.scrollTop=box.scrollHeight;
+}
+function setStatus(text,type=''){
+  $('#status').textContent=text;
+  $('#dot').className='dot'+(type?' '+type:'');
+}
+
+function sourceInfo(file, suppliedRelativePath=''){
+  const raw=cleanPath(suppliedRelativePath || file.webkitRelativePath || '');
+  if(raw && raw!==file.name){
+    const parts=raw.split('/');
+    const selectionRoot=parts.length>1?parts[0]:'';
+    const relativeInsideRoot=parts.length>1?cleanPath(parts.slice(1).join('/')):raw;
+    return {sourcePath:raw, selectionRoot, relativePath:relativeInsideRoot || file.name, hasFolder:true};
+  }
+  return {sourcePath:file.name, selectionRoot:'', relativePath:file.name, hasFolder:false};
+}
+
+async function classifyFile(file, suppliedRelativePath=''){
+  const info=sourceInfo(file,suppliedRelativePath);
+
+  // A real folder-relative path always wins. This is the important folder-aware rule:
+  // same filename in different folders stays distinct.
+  if(info.hasFolder && info.relativePath) return info.relativePath;
+
+  if(nameMap[file.name]) return nameMap[file.name];
+
+  if(file.name==='package.json'){
+    try{
+      const text=await file.text();
+      if(/arena-pocket-ide-proxy|wrangler|cloudflare/i.test(text)) return 'worker/package.json';
+      return 'package.json';
+    }catch{ return 'package.json'; }
+  }
+
+  if(file.name==='index.js'){
+    try{
+      const text=await file.text();
+      if(/ARENA_DEFAULT_BASE|api\.preview\.arena\.ai|ARENA_API_KEY|\/v1\/messages/.test(text))
+        return 'worker/src/index.js';
+      return 'index.js';
+    }catch{ return 'index.js'; }
+  }
+
+  return file.name;
+}
+
+
+async function addFiles(files, relativePathLookup=null){
+  setStatus('Organizing files…','busy');
+  for(const file of files){
+    const supplied=relativePathLookup?.get?.(file) || '';
+    const info=sourceInfo(file,supplied);
+    const key=`${info.sourcePath}-${file.size}-${file.lastModified}`;
+    if(state.items.some(x=>x.key===key)) continue;
+    const path=await classifyFile(file,supplied);
+    state.items.push({
+      key,file,path,virtual:false,manualPath:false,
+      sourcePath:info.sourcePath,
+      sourceRelativePath:info.relativePath,
+      selectionRoot:info.selectionRoot
+    });
+  }
+  await backgroundArrange();
+  renderFiles();
+  setStatus('Ready','ok');
+}
+
+function addVirtualFolder(folder){
+  const p=cleanPath(folder);
+  if(!p) return;
+  const path=`${p}/.gitkeep`;
+  if(state.items.some(x=>x.path===path)) return;
+  state.items.push({
+    key:'virtual-'+Date.now()+'-'+Math.random(),
+    virtual:true,manualPath:true,
+    path,
+    sourcePath:`(generated) ${path}`,
+    sourceRelativePath:path,
+    selectionRoot:'',
+    file:new File([''],'.gitkeep',{type:'text/plain'})
+  });
+  renderFiles();
+}
+
+function addBuiltInFile(name,path,content=''){
+  if(state.items.some(x=>cleanPath(x.path)===cleanPath(path))) return;
+  state.items.push({
+    key:'builtin-'+path,
+    virtual:true,manualPath:false,
+    path,
+    sourcePath:`(generated) ${path}`,
+    sourceRelativePath:path,
+    selectionRoot:'',
+    file:new File([content],name,{type:'text/plain'})
+  });
+}
+
+async function backgroundArrange(){
+  // Runs after every import. Real folder paths are preserved; only files that
+  // arrive without folder information are classified by Crain's smart rules.
+  for(const item of state.items){
+    if(item.virtual || item.manualPath) continue;
+    const supplied=item.sourcePath && item.sourcePath!==item.file.name ? item.sourcePath : '';
+    item.path=await classifyFile(item.file,supplied);
+  }
+
+  // Keep the small support files that the old manual Auto-arrange button added.
+  // Existing user files always win, so nothing is silently overwritten.
+  addBuiltInFile('.gitignore','.gitignore',
+`node_modules/
+.DS_Store
+.env
+.dev.vars
+*.log
+`);
+  if(state.items.some(i=>/\.html?$/i.test(i.file?.name||'') || i.file?.name==='manifest.webmanifest')){
+    addBuiltInFile('.nojekyll','.nojekyll','');
+  }
+}
+
+function pathCounts(){
+  const m=new Map();
+  for(const item of state.items){
+    const p=finalPath(item,false);
+    if(!p) continue;
+    m.set(p,(m.get(p)||0)+1);
+  }
+  return m;
+}
+function finalPath(item,throwOnEmpty=true){
+  const prefix=cleanPath($('#prefix').value);
+  const p=cleanPath(item.path);
+  if(!p && throwOnEmpty) throw new Error(`"${item.file.name}" has an empty destination path.`);
+  if(!p) return '';
+  return prefix?`${prefix}/${p}`:p;
+}
+function validateFiles(){
+  const counts=pathCounts();
+  const duplicates=[...counts].filter(([,n])=>n>1).map(([p])=>p);
+  const empty=state.items.filter(i=>!cleanPath(i.path));
+  const box=$('#validation');
+
+  if(!state.items.length){
+    box.className='validation';
+    box.textContent='';
+    return {ok:false,duplicates,empty};
+  }
+  if(duplicates.length || empty.length){
+    box.className='validation bad';
+    box.textContent=[
+      duplicates.length?`Path conflict: ${duplicates.join(', ')}`:'',
+      empty.length?`${empty.length} file(s) need a destination path.`:''
+    ].filter(Boolean).join(' ');
+    return {ok:false,duplicates,empty};
+  }
+  box.className='validation';
+  box.textContent='';
+  return {ok:true,duplicates,empty};
+}
+
+function folderCount(){
+  const folders=new Set();
+  for(const item of state.items){
+    const p=finalPath(item,false);
+    const parts=p.split('/').filter(Boolean);
+    if(parts.length>1) folders.add(parts.slice(0,-1).join('/'));
+  }
+  return folders.size;
+}
+
+function updateSelectionSummary(validation=validateFiles()){
+  const box=$('#selectionSummary');
+  const title=$('#selectionTitle');
+  const meta=$('#selectionMeta');
+  const mark=$('#summaryMark');
+  const badge=$('#summaryBadge');
+  const review=$('#reviewPanel');
+  const reviewCount=$('#reviewCount');
+
+  if(!state.items.length){
+    box.className='selectionSummary empty';
+    mark.textContent='+';
+    title.textContent='No files selected';
+    meta.textContent='Choose files, a folder, or drop a project.';
+    badge.hidden=true;
+    review.hidden=true;
+    return;
+  }
+
+  const folders=folderCount();
+  const generated=state.items.filter(i=>i.virtual).length;
+  review.hidden=false;
+  reviewCount.textContent=`${state.items.length} file${state.items.length===1?'':'s'}`;
+  badge.hidden=false;
+  badge.textContent='Auto';
+
+  if(validation.ok){
+    box.className='selectionSummary ok';
+    mark.textContent='✓';
+    title.textContent=`${state.items.length} file${state.items.length===1?'':'s'} ready`;
+    const bits=[];
+    if(folders) bits.push(`${folders} folder${folders===1?'':'s'}`);
+    bits.push('paths organized');
+    if(generated) bits.push(`${generated} support file${generated===1?'':'s'}`);
+    meta.textContent=bits.join(' • ');
+  }else{
+    box.className='selectionSummary bad';
+    mark.textContent='!';
+    title.textContent='Review path conflicts';
+    meta.textContent='Two files only conflict when their complete GitHub paths match.';
+    review.open=true;
+  }
+}
+
+function renderFiles(){
+  const root=$('#files');
+  root.innerHTML='';
+  const counts=pathCounts();
+
+  state.items.forEach((item,index)=>{
+    const p=finalPath(item,false);
+    const bad=!p || (counts.get(p)||0)>1;
+    const el=document.createElement('div');
+    el.className='file'+(bad?' bad':'');
+    const source=item.sourcePath || item.file.name;
+    el.innerHTML=`
+      <div class="fileTop">
+        <div class="fileGlyph">${item.virtual?'＋':'⌘'}</div>
+        <div class="fileName">
+          <b>${escapeHtml(item.file.name)}</b>
+          <span>${prettySize(item.file.size)}${item.virtual?' · generated':''}${item.selectionRoot?' · folder':''}</span>
+        </div>
+        <button type="button" class="removeBtn" aria-label="Remove ${escapeAttr(item.file.name)}">×</button>
+      </div>
+      <div class="pathMap">
+        <div class="pathSide">
+          <span class="pathLabel">Import from</span>
+          <div class="sourcePath" title="${escapeAttr(source)}">${escapeHtml(source)}</div>
+        </div>
+        <div class="pathArrow">→</div>
+        <div class="pathSide">
+          <span class="pathLabel">GitHub path</span>
+          <input class="path${bad?' invalid':''}" aria-label="Destination path" value="${escapeAttr(item.path)}">
+        </div>
+      </div>
+    `;
+    const pathInput=el.querySelector('.path');
+    pathInput.addEventListener('input',e=>{
+      item.path=cleanPath(e.target.value);
+      item.manualPath=true;
+      const v=validateFiles();
+      updateSelectionSummary(v);
+    });
+    pathInput.addEventListener('change',renderFiles);
+    el.querySelector('.removeBtn').addEventListener('click',()=>{
+      state.items.splice(index,1);
+      renderFiles();
+    });
+    root.appendChild(el);
+  });
+
+  const validation=validateFiles();
+  updateSelectionSummary(validation);
+}
+
+async function fileToBase64(file){
+  const buf=new Uint8Array(await file.arrayBuffer());
+  let binary='';
+  const chunk=0x8000;
+  for(let i=0;i<buf.length;i+=chunk)
+    binary+=String.fromCharCode(...buf.subarray(i,i+chunk));
+  return btoa(binary);
+}
+
+async function gh(path,options={}){
+  const token=$('#token').value.trim();
+  if(!token) throw new Error('Enter a GitHub token first.');
+  let res;
+  try{
+    res=await fetch(`https://api.github.com${path}`,{
+      ...options,
+      headers:{
+        'Accept':'application/vnd.github+json',
+        'Authorization':`Bearer ${token}`,
+        'X-GitHub-Api-Version':'2022-11-28',
+        ...(options.headers||{})
+      }
+    });
+  }catch(e){
+    throw new Error(
+      `Network request to GitHub failed (${e.message||'Load failed'}). `+
+      `If you opened this HTML from iPhone Files/Quick Look, open it in Safari from an HTTPS/static host instead.`
+    );
+  }
+  const text=await res.text();
+  let data={};
+  try{data=text?JSON.parse(text):{};}catch{data={message:text};}
+  if(!res.ok){
+    const err=new Error(data.message||`GitHub API error ${res.status}`);
+    err.status=res.status;err.data=data;
+    throw err;
+  }
+  return data;
+}
+
+async function testRepoAccess(){
+  resetError();
+  $('#repoTestText').textContent='Connecting…';
+  setStatus('Testing GitHub…','busy');
+  try{
+    await connectGitHubAccount();
+    const repoValue=$('#repo').value.trim();
+    if(repoValue){
+      const {owner,repo}=parseRepo(repoValue);
+      const data=await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`);
+      $('#repoTestText').textContent=`Connected · ${data.full_name} · default branch ${data.default_branch||'not created yet'}`;
+    }else{
+      $('#repoTestText').textContent='GitHub connected. Choose a repository with Browse My Repos.';
+    }
+    saveConnectionSettings(false);
+    setStatus('GitHub access works','ok');
+  }catch(e){
+    $('#repoTestText').textContent='Connection failed';
+    showError(e);
+  }
+}
+
+async function getBranchState(owner,repo,branch){
+  try{
+    const ref=await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/ref/heads/${encodeURIComponent(branch)}`);
+    const baseSha=ref.object.sha;
+    const commit=await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/commits/${baseSha}`);
+    return {exists:true,baseSha,baseTreeSha:commit.tree.sha};
+  }catch(e){
+    if(e.status===404 || e.status===409) return {exists:false,baseSha:null,baseTreeSha:null};
+    throw e;
+  }
+}
+
+async function initializeEmptyRepo(owner,repo,repoInfo,requestedBranch,firstPath,firstFile,message){
+  const defaultBranch=repoInfo.default_branch || 'main';
+  setStatus('Initializing empty repository…','busy');
+  log(`Repository is empty. Initializing "${defaultBranch}" with ${firstPath}…`);
+
+  const content=await fileToBase64(firstFile);
+
+  // GitHub's Contents API is the supported bootstrap path for an empty repository.
+  await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeRepoPath(firstPath)}`,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      message:`${message} — initialize repository`,
+      content
+    })
+  });
+
+  let base=await getBranchState(owner,repo,defaultBranch);
+  if(!base.exists) throw new Error('GitHub initialized the repository, but the default branch could not be found.');
+
+  if(requestedBranch!==defaultBranch){
+    log(`Creating branch "${requestedBranch}" from ${defaultBranch}…`);
+    await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/refs`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ref:`refs/heads/${requestedBranch}`,sha:base.baseSha})
+    });
+    base=await getBranchState(owner,repo,requestedBranch);
+  }
+  return base;
+}
+
+async function pushAll(){
+  resetError();
+  $('#log').textContent='';
+  $('#progress').value=0;
+
+  try{
+    if(!state.items.length) throw new Error('Choose at least one file first.');
+
+    const validation=validateFiles();
+    if(!validation.ok){
+      if(validation.duplicates.length)
+        throw new Error(`Exact destination-path collision: ${validation.duplicates.join(', ')}. Files with the same name are allowed when their folders differ. Change only the colliding full path, or import the containing folder so Crain can preserve its relative path.`);
+      throw new Error('Fix the highlighted destination paths before pushing.');
+    }
+
+    const {owner,repo,full}=parseRepo($('#repo').value);
+    const branch=cleanPath($('#branch').value)||'main';
+    const message=$('#message').value.trim()||'Upload files';
+    if(!$('#token').value.trim()) throw new Error('Enter your GitHub token first.');
+
+    const paths=new Map();
+    for(const item of state.items){
+      const p=finalPath(item);
+      if(paths.has(p)) throw new Error(`Two files are targeting the same GitHub path: ${p}`);
+      paths.set(p,item);
+    }
+
+    $('#push').disabled=true;
+    $('#testRepo').disabled=true;
+    $('#progress').max=state.items.length+6;
+    setStatus('Connecting to GitHub…','busy');
+    log(`Repository: ${full}`);
+    log(`Branch: ${branch}`);
+
+    const repoInfo=await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`);
+    $('#progress').value++;
+    log(`Repository access OK.`);
+
+    let branchState=await getBranchState(owner,repo,branch);
+    $('#progress').value++;
+
+    if(!branchState.exists){
+      const first=[...paths.entries()].find(([p])=>p==='index.html') || [...paths.entries()][0];
+      if(!first) throw new Error('No file is available to initialize the empty repository.');
+      branchState=await initializeEmptyRepo(owner,repo,repoInfo,branch,first[0],first[1].file,message);
+      $('#progress').value++;
+      log(`Repository initialized. Base commit: ${branchState.baseSha.slice(0,7)}`);
+    }else{
+      log(`Base commit: ${branchState.baseSha.slice(0,7)}`);
+      $('#progress').value++;
+    }
+
+    const tree=[];
+    let done=0;
+    for(const [path,item] of paths){
+      setStatus(`Uploading ${done+1}/${state.items.length}: ${path}`,'busy');
+      const content=await fileToBase64(item.file);
+      const blob=await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/blobs`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({content,encoding:'base64'})
+      });
+      tree.push({path,mode:'100644',type:'blob',sha:blob.sha});
+      done++;
+      $('#progress').value++;
+      log(`✓ ${path}`);
+    }
+
+    // Build and publish the commit with optimistic retry protection.
+    //
+    // The branch can move after we read it (for example another uploader tab,
+    // a GitHub web edit, or another client can create a commit). GitHub correctly
+    // rejects force:false in that situation as "Update is not a fast forward".
+    //
+    // Never force-push here. Instead, re-read the newest branch head, rebuild our
+    // tree on top of it, create a new child commit, and retry the fast-forward.
+    let commit=null;
+    let published=false;
+    const MAX_FAST_FORWARD_RETRIES=4;
+
+    for(let attempt=1;attempt<=MAX_FAST_FORWARD_RETRIES;attempt++){
+      setStatus(attempt===1?'Checking latest branch…':`Branch changed — retrying ${attempt}/${MAX_FAST_FORWARD_RETRIES}…`,'busy');
+
+      const latest=await getBranchState(owner,repo,branch);
+      if(!latest.exists) throw new Error(`Branch "${branch}" disappeared while uploading.`);
+
+      if(latest.baseSha!==branchState.baseSha){
+        log(`↻ Branch moved from ${branchState.baseSha.slice(0,7)} to ${latest.baseSha.slice(0,7)}. Rebuilding safely on latest commit.`);
+      }
+      branchState=latest;
+
+      setStatus('Creating Git tree…','busy');
+      const newTree=await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({base_tree:branchState.baseTreeSha,tree})
+      });
+
+      setStatus('Creating commit…','busy');
+      commit=await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/commits`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message,tree:newTree.sha,parents:[branchState.baseSha]})
+      });
+
+      // One final head check reduces the race window before PATCH.
+      const beforeUpdate=await getBranchState(owner,repo,branch);
+      if(!beforeUpdate.exists) throw new Error(`Branch "${branch}" disappeared before the final update.`);
+
+      if(beforeUpdate.baseSha!==branchState.baseSha){
+        log(`↻ Branch changed again to ${beforeUpdate.baseSha.slice(0,7)} before publish. Retrying without force.`);
+        branchState=beforeUpdate;
+        continue;
+      }
+
+      setStatus('Updating branch…','busy');
+      try{
+        await gh(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/refs/heads/${encodeURIComponent(branch)}`,{
+          method:'PATCH',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({sha:commit.sha,force:false})
+        });
+        published=true;
+        break;
+      }catch(e){
+        const msg=String(e?.message||'').toLowerCase();
+        const isFastForwardRace=
+          msg.includes('not a fast forward') ||
+          msg.includes('not fast-forward') ||
+          msg.includes('fast forward');
+
+        if(isFastForwardRace && attempt<MAX_FAST_FORWARD_RETRIES){
+          log('↻ GitHub rejected the update because the branch moved. Fetching the newest HEAD and retrying safely…');
+          await new Promise(r=>setTimeout(r,350*attempt));
+          continue;
+        }
+        throw e;
+      }
+    }
+
+    if(!published){
+      throw new Error('The branch kept changing while this upload was finishing. Wait a few seconds, then press Upload & Push again.');
+    }
+
+    $('#progress').value=$('#progress').max;
+    setStatus(`Pushed ${commit.sha.slice(0,7)} successfully`,'ok');
+    log('');
+    log('SUCCESS');
+    log(`Commit: ${commit.sha}`);
+    log(`Repository: https://github.com/${owner}/${repo}/tree/${encodeURIComponent(branch)}`);
+    saveConnectionSettings(false);
+  }catch(e){
+    console.error('[Uploader]',e);
+    showError(e);
+  }finally{
+    $('#push').disabled=false;
+    $('#testRepo').disabled=false;
+  }
+}
+
+$('#chooseFiles').addEventListener('click',()=>$('#fileInput').click());
+$('#chooseFolder').addEventListener('click',()=>$('#folderInput').click());
+$('#fileInput').addEventListener('change',async e=>{
+  try{await addFiles(e.target.files);}catch(err){showError(err);}finally{e.target.value='';}
+});
+$('#folderInput').addEventListener('change',async e=>{
+  try{await addFiles(e.target.files);}catch(err){showError(err);}finally{e.target.value='';}
+});
+$('#clearFiles').addEventListener('click',()=>{state.items=[];renderFiles();resetError();});
+$('#addFolder').addEventListener('click',()=>{addVirtualFolder($('#emptyFolder').value);$('#emptyFolder').value='';});
+$('#testRepo').addEventListener('click',()=>testRepoAccess());
+$('#browseRepos').addEventListener('click',()=>loadMyRepos().catch(showError));
+$('#closeRepoPicker').addEventListener('click',()=>$('#repoPicker').classList.remove('show'));
+$('#repoSearch').addEventListener('input',renderRepoList);
+$('#saveConnection').addEventListener('click',()=>saveConnectionSettings(true));
+$('#forgetConnection').addEventListener('click',forgetConnectionSettings);
+$('#rememberToken').addEventListener('change',()=>saveConnectionSettings(false));
+$('#repo').addEventListener('change',()=>saveConnectionSettings(false));
+$('#branch').addEventListener('change',()=>saveConnectionSettings(false));
+$('#prefix').addEventListener('input',()=>renderFiles());
+$('#push').addEventListener('click',pushAll);
+
+
+$('#showToken').addEventListener('click',()=>{
+  const t=$('#token'),showing=t.type==='text';
+  t.type=showing?'password':'text';
+  $('#showToken').textContent=showing?'Show':'Hide';
+});
+
+
+document.addEventListener('click',e=>{
+  const tipBtn=e.target.closest('.tipBtn');
+  if(tipBtn){
+    e.stopPropagation();
+    const tip=tipBtn.closest('.tip');
+    document.querySelectorAll('.tip.open').forEach(x=>{if(x!==tip)x.classList.remove('open')});
+    tip.classList.toggle('open');
+    return;
+  }
+  if(!e.target.closest('.tip')) document.querySelectorAll('.tip.open').forEach(x=>x.classList.remove('open'));
+});
+
+async function readDroppedEntries(dataTransfer){
+  const items=[...(dataTransfer?.items||[])];
+  const records=[];
+
+  async function walk(entry,prefix=''){
+    if(!entry) return;
+    if(entry.isFile){
+      await new Promise((resolve,reject)=>entry.file(file=>{records.push({file,path:cleanPath(prefix+file.name)});resolve();},reject));
+      return;
+    }
+    if(entry.isDirectory){
+      const reader=entry.createReader();
+      const children=[];
+      while(true){
+        const batch=await new Promise((resolve,reject)=>reader.readEntries(resolve,reject));
+        if(!batch.length) break;
+        children.push(...batch);
+      }
+      for(const child of children) await walk(child,`${prefix}${entry.name}/`);
+    }
+  }
+
+  const entries=items.map(i=>i.webkitGetAsEntry?.()).filter(Boolean);
+  if(entries.length){
+    for(const entry of entries) await walk(entry,'');
+    return records;
+  }
+  return [...(dataTransfer?.files||[])].map(file=>({file,path:file.webkitRelativePath||file.name}));
+}
+
+const drop=$('#drop');
+['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');}));
+drop.addEventListener('drop',async e=>{
+  try{
+    const records=await readDroppedEntries(e.dataTransfer);
+    const files=records.map(r=>r.file);
+    const lookup=new Map(records.map(r=>[r.file,r.path]));
+    await addFiles(files,lookup);
+  }catch(err){showError(err);}
+});
+
+window.addEventListener('unhandledrejection',e=>{
+  console.error('[Uploader unhandled rejection]',e.reason);
+  showError(e.reason || new Error('Unexpected async error.'));
+});
+
+loadConnectionSettings();
+renderFiles();
+})();
+</script>
+</body>
+</html>
