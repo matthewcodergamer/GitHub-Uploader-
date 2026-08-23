@@ -12,6 +12,55 @@ import {
 const MAX_GITHUB_BLOB_BYTES = 100 * 1024 * 1024
 const BLOB_CONCURRENCY = 4
 
+const VITE_PAGES_WORKFLOW = `name: Deploy Vite app to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build
+        run: npm run build -- --base=./
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload production build
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: \${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+`
+
 function dirname(path) {
   const clean = cleanPath(path)
   const slash = clean.lastIndexOf('/')
@@ -30,6 +79,21 @@ function cloneTextItem(item, text, type = 'text/plain') {
       type: item?.file?.type || type,
       lastModified: Date.now(),
     }),
+  }
+}
+
+function createGeneratedTextItem(path, text, type = 'text/plain') {
+  const name = cleanPath(path).split('/').pop() || 'generated.txt'
+  return {
+    id: `generated-${path}`,
+    key: `generated-${path}`,
+    virtual: true,
+    manualPath: true,
+    path,
+    sourcePath: `(generated) ${path}`,
+    sourceRelativePath: path,
+    selectionRoot: '',
+    file: new File([text], name, { type, lastModified: Date.now() }),
   }
 }
 
@@ -66,6 +130,28 @@ async function applySafeProjectRepairs(paths, onLog) {
       repaired.set(indexPath, cloneTextItem(item, text, 'text/html'))
       onLog?.(`AUTO-FIX: ${indexPath} pointed to src/main.${ext}, but the uploaded entry is ${sibling}. Repaired the Vite entry path automatically.`)
       break
+    }
+  }
+
+  // If a root Vite project has no Pages workflow, generate a safe static build
+  // workflow automatically. This prevents GitHub Pages from serving raw JSX.
+  const packageItem = repaired.get('package.json')
+  const hasPagesWorkflow = [...repaired.keys()].some((path) =>
+    /^\.github\/workflows\/(?:deploy-pages|pages|deploy)\.ya?ml$/i.test(path),
+  )
+
+  if (packageItem?.file?.text && !hasPagesWorkflow) {
+    try {
+      const packageJson = JSON.parse(await packageItem.file.text())
+      const deps = { ...(packageJson.dependencies || {}), ...(packageJson.devDependencies || {}) }
+      const isVite = Boolean(deps.vite) || /\bvite\b/i.test(String(packageJson.scripts?.build || ''))
+      if (isVite) {
+        const workflowPath = '.github/workflows/deploy-pages.yml'
+        repaired.set(workflowPath, createGeneratedTextItem(workflowPath, VITE_PAGES_WORKFLOW, 'text/yaml'))
+        onLog?.(`AUTO-FIX: Added ${workflowPath} so GitHub Pages builds the Vite/React project instead of serving raw source.`)
+      }
+    } catch {
+      onLog?.('Preflight note: package.json could not be parsed, so Crain skipped framework-specific deployment repair.')
     }
   }
 
