@@ -1,42 +1,45 @@
 .liquid-glass {
   display: block !important;
   position: relative;
-  overflow: hidden;
-  isolation: isolate;
 }
 
+/*
+ * The @samasante/liquid-glass component already provides the actual frost,
+ * edge-light and Safari-safe SVG filter. Keep the tint genuinely translucent
+ * here instead of stacking a second heavy backdrop blur on top of it.
+ */
 .import-glass {
   width: 100%;
-  background: rgba(110, 110, 120, .20) !important;
+  background: rgba(64, 64, 72, .10) !important;
   box-shadow:
-    0 7px 20px rgba(0, 0, 0, .08),
-    inset 0 .45px 0 rgba(255,255,255,.16),
-    inset 0 -.45px 0 rgba(0,0,0,.18) !important;
-  -webkit-backdrop-filter: blur(14px) saturate(115%);
-  backdrop-filter: blur(14px) saturate(115%);
+    0 7px 18px rgba(0, 0, 0, .09),
+    inset 0 .45px 0 rgba(255, 255, 255, .10),
+    inset 0 -.45px 0 rgba(0, 0, 0, .12) !important;
 }
+
 html[data-theme='light'] .import-glass {
-  background: rgba(255, 255, 255, .52) !important;
+  background: rgba(255, 255, 255, .30) !important;
   box-shadow:
-    0 7px 20px rgba(28, 48, 80, .055),
-    inset 0 .45px 0 rgba(255,255,255,.92),
-    inset 0 -.45px 0 rgba(70,76,90,.09) !important;
+    0 8px 22px rgba(35, 55, 85, .045),
+    inset 0 .45px 0 rgba(255, 255, 255, .72),
+    inset 0 -.45px 0 rgba(70, 76, 90, .055) !important;
 }
 
 .push-glass {
   width: 100%;
-  background: linear-gradient(180deg, rgba(30, 115, 219, .82), rgba(12, 71, 158, .88)) !important;
+  background: linear-gradient(180deg, rgba(20, 122, 246, .58), rgba(7, 76, 172, .52)) !important;
   box-shadow:
-    0 9px 24px rgba(0, 45, 112, .22),
-    inset 0 .45px 0 rgba(255,255,255,.18),
-    inset 0 -.45px 0 rgba(0,30,80,.28) !important;
+    0 9px 22px rgba(0, 45, 112, .16),
+    inset 0 .45px 0 rgba(255, 255, 255, .14),
+    inset 0 -.45px 0 rgba(0, 25, 70, .18) !important;
 }
+
 html[data-theme='light'] .push-glass {
-  background: linear-gradient(180deg, rgba(45, 139, 250, .95), rgba(13, 104, 225, .96)) !important;
+  background: linear-gradient(180deg, rgba(41, 137, 250, .72), rgba(12, 104, 226, .68)) !important;
   box-shadow:
-    0 10px 24px rgba(0, 91, 210, .17),
-    inset 0 .45px 0 rgba(255,255,255,.42),
-    inset 0 -.45px 0 rgba(0,55,148,.20) !important;
+    0 10px 22px rgba(0, 91, 210, .12),
+    inset 0 .45px 0 rgba(255, 255, 255, .30),
+    inset 0 -.45px 0 rgba(0, 55, 148, .12) !important;
 }
 
 .push-button {
@@ -51,14 +54,25 @@ html[data-theme='light'] .push-glass {
   gap: 10px;
   font-size: 16.5px;
   font-weight: 740;
-  text-shadow: 0 1px 1px rgba(0,0,0,.14);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .12);
 }
-.push-button svg { width: 21px; height: 21px; }
-.push-button:active:not(:disabled) { background: rgba(255,255,255,.045) !important; }
 
-/* The package provides the optical lens. CSS only supplies the material tint;
-   no thick faux border or broad white highlight is painted over it. */
+.push-button svg {
+  width: 21px;
+  height: 21px;
+}
+
+.push-button:active:not(:disabled) {
+  background: rgba(255, 255, 255, .035) !important;
+}
+
+/* The package owns the optical material. CSS only provides a translucent tint. */
 @media (prefers-reduced-transparency: reduce) {
-  .import-glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface-2) !important; }
-  .push-glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .import-glass {
+    background: var(--surface-2) !important;
+  }
+
+  .push-glass {
+    background: rgba(0, 102, 214, .88) !important;
+  }
 }
