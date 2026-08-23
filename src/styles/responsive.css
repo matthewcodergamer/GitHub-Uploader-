@@ -1,0 +1,87 @@
+@media (max-width: 760px) {
+  .app-shell { padding: max(14px, env(safe-area-inset-top)) 11px max(28px, env(safe-area-inset-bottom)); }
+  .app-header { min-height: 60px; margin: 0 5px 14px; }
+  .crain-app-icon { width: 54px; height: 54px; border-radius: 17px; }
+  .crain-app-icon svg { width: 45px; height: 45px; }
+  .brand { gap: 12px; }
+  .brand-copy h1 { font-size: 28px; }
+  .brand-copy p { font-size: 13px; margin-top: 4px; }
+  .version-pill { height: 28px; padding-inline: 10px; }
+  .icon-button { width: 40px; height: 40px; min-height: 40px; }
+
+  .panel { padding: 19px 16px 18px; border-radius: 20px; margin-bottom: 13px; }
+  .section-title { margin-bottom: 19px; }
+  .section-title h2 { font-size: 19px; }
+  .step-chip { width: 29px; height: 29px; border-radius: 9px; }
+  .form-grid { grid-template-columns: 1fr; gap: 14px; }
+  .field-group--full { grid-column: auto; }
+  input, textarea { min-height: 52px; font-size: 16px; }
+  .repo-entry-row { grid-template-columns: 1fr; }
+  .repo-entry-row .accent-button { width: 100%; }
+  .connection-actions { grid-template-columns: 1fr 1fr; }
+  .account-row { padding: 11px; }
+  .account-copy span { font-size: 12px; }
+
+  .import-toolbar { grid-template-columns: 1fr; gap: 10px; }
+  .danger-text { margin-left: 3px; }
+  .import-buttons button { min-height: 58px; font-size: 15.5px; }
+  .drop-zone { display: none; }
+  .options-grid { grid-template-columns: 1fr; }
+  .selection-summary div span { white-space: normal; }
+  .path-grid { grid-template-columns: 1fr; }
+  .path-arrow { display: none; }
+
+  .push-button { min-height: 58px; }
+}
+
+@media (max-width: 430px) {
+  .app-shell { padding-inline: 9px; }
+  .panel { padding-inline: 15px; }
+  .header-actions { gap: 6px; }
+  .version-pill { font-size: 11px; }
+  .connection-actions { grid-template-columns: 1fr; }
+  .token-row { grid-template-columns: minmax(0,1fr) 72px; }
+  .account-row { align-items: flex-start; }
+  .text-action { align-self: center; }
+  .import-buttons button { padding-inline: 8px; gap: 7px; }
+}
+
+/* iPhone landscape / compact tablet landscape: GitHub on the left, utility
+   actions on the right so the interface does not become one long phone column. */
+@media (orientation: landscape) and (min-width: 700px) and (max-width: 999px) {
+  .app-shell { width: min(100%, 980px); padding: 14px 18px 24px; }
+  .app-header { min-height: 52px; margin-bottom: 12px; }
+  .crain-app-icon { width: 48px; height: 48px; border-radius: 15px; }
+  .crain-app-icon svg { width: 40px; height: 40px; }
+  .brand-copy h1 { font-size: 25px; }
+  .brand-copy p { font-size: 12px; }
+  .desktop-layout { display: grid; grid-template-columns: minmax(0, 1.18fr) minmax(310px, .82fr); gap: 14px; align-items: start; }
+  .desktop-side { display: grid; gap: 14px; }
+  .panel { margin: 0; padding: 18px; }
+  .github-panel { min-height: 100%; }
+  .desktop-side .panel { margin: 0; }
+  .form-grid { gap: 12px; }
+  input, textarea { min-height: 47px; }
+  .drop-zone { display: none; }
+  .options-grid { grid-template-columns: 1fr; }
+}
+
+/* Desktop/laptop composition. */
+@media (min-width: 1000px) {
+  .app-shell { padding: 28px 28px 40px; }
+  .app-header { margin-bottom: 20px; }
+  .desktop-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.26fr) minmax(360px, .74fr);
+    gap: 20px;
+    align-items: start;
+  }
+  .desktop-side { display: grid; gap: 20px; }
+  .panel { margin: 0; padding: 26px; border-radius: 24px; }
+  .github-panel { min-height: 100%; }
+  .github-panel .form-grid { gap: 18px; }
+  .github-panel input { min-height: 56px; }
+  .project-panel .import-toolbar { grid-template-columns: 1fr; }
+  .project-panel .danger-text { justify-self: start; }
+  footer { margin-top: 12px; }
+}

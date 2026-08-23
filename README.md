@@ -1,31 +1,38 @@
-# Crain GitHub Uploader — React v16 (GitHub Pages fixed)
+# Crain GitHub Uploader v16 — React
 
-This is the React/Vite version of Crain.
+React/Vite migration of the v15 single-file Crain uploader.
 
-## Why the previous GitHub Pages upload showed a black screen
+## Preserved uploader behavior
 
-A Vite React repository is **source code**, not the final static site. The source `index.html` loads `src/main.jsx`, which must be compiled by Vite before GitHub Pages can serve it as an application.
+- Folder-aware importing: real relative paths win.
+- Same filenames in different folders stay separate.
+- Exact complete destination-path collisions are the only duplicate conflict.
+- Background auto-arrange for known Crain project files.
+- `.gitignore` and `.nojekyll` support files when appropriate.
+- Editable `Import from → GitHub path` review.
+- iOS/Safari first-picker reliability fallback (`input`, `change`, focus, pageshow, visibility retries).
+- GitHub account/repository browsing.
+- Direct GitHub Git Data API push with safe fast-forward retry protection.
+- Empty repository initialization.
+- Saved repository/token preference in localStorage.
+- Light/dark mode.
+- Phone portrait, iPhone landscape, tablet, laptop, and desktop layouts.
 
-The previous project also used an absolute `/src/main.jsx` URL. On a project site such as:
+## Liquid Glass
 
-`https://matthewcodergamer.github.io/GitHub-Uploader-/`
+The two intentional glass surfaces use the real React package:
 
-that points to the wrong domain-root path. This fixed project uses a relative source path for development and deploys the compiled `dist/` directory with GitHub Actions.
+```bash
+npm i @samasante/liquid-glass
+```
 
-## Deploy to GitHub Pages
+`src/components/LiquidGlass.jsx` contains the subtle optics tuning. Foreground labels and icons remain normal React content so they stay crisp.
 
-1. Upload **the contents of this folder** to the root of `matthewcodergamer/GitHub-Uploader-`.
-2. Keep `.github/workflows/deploy-pages.yml` in the repository.
-3. GitHub → repository **Settings** → **Pages**.
-4. Under **Build and deployment**, set **Source** to **GitHub Actions**.
-5. Open the **Actions** tab and wait for **Deploy Crain React to GitHub Pages** to finish successfully.
-6. Open:
+## Crain icon
 
-   `https://matthewcodergamer.github.io/GitHub-Uploader-/`
+The v15 blue iOS-style folder silhouette is preserved. v16 adds a white document and a blue document visibly entering the folder, so the icon communicates **files → folder/repository** instead of showing a folder by itself.
 
-Do **not** use `https://matthewcodergamer.github.io/` unless this app is stored in a repository named `matthewcodergamer.github.io`.
-
-## Local development
+## Run locally
 
 ```bash
 npm install
@@ -38,17 +45,18 @@ npm run dev
 npm run build
 ```
 
-Vite writes the deployable site to `dist/`.
+The deployable static site is generated in `dist/`.
 
-## Black-screen protection added
+## GitHub Pages
 
-- Visible boot fallback if React never starts.
-- App-level React error boundary.
-- Liquid Glass is loaded lazily and falls back to CSS if the package cannot initialize.
-- GitHub Pages workflow builds `dist/` and uploads **only** the compiled site.
-- Project-site base path is explicitly `/GitHub-Uploader-/` in GitHub Actions.
-- Removed npm dependency caching from the workflow because the source zip does not ship a lockfile.
+A Pages workflow is included at `.github/workflows/deploy-pages.yml`.
 
-## Liquid Glass
+1. Push this project to a GitHub repository.
+2. In **Settings → Pages**, choose **GitHub Actions** as the source.
+3. Push to `main` or run the workflow manually.
 
-The project still uses `@samasante/liquid-glass`. The app does not depend on that package successfully initializing to remain usable: if it fails on a browser, Crain displays the same controls with a CSS glass fallback.
+Vite uses `base: './'`, so the same build works on a GitHub Pages project subpath or a custom domain.
+
+## GitHub token
+
+Crain performs uploads in the browser. Use a fine-grained personal access token limited to the repository you intend to update, with **Contents: Read and write**. If you upload workflow files, grant the workflow permission GitHub requires.

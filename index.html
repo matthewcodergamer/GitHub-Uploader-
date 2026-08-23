@@ -22,30 +22,9 @@
         }
       })()
     </script>
-    <style>
-      /* Visible until React mounts. This prevents a silent black page when a
-         deployment is misconfigured or a module fails to load. */
-      #bootFallback{min-height:100vh;display:grid;place-items:center;padding:28px;background:#07070a;color:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif}
-      #bootFallback .bootCard{max-width:430px;text-align:center}
-      #bootFallback .bootIcon{width:58px;height:58px;border-radius:17px;margin:0 auto 16px;display:grid;place-items:center;background:#121217;color:#0a84ff;font-size:28px;font-weight:800}
-      #bootFallback strong{display:block;font-size:22px;letter-spacing:-.5px;margin-bottom:7px}
-      #bootFallback span{display:block;color:#9898a5;font-size:14px;line-height:1.45}
-      html[data-theme="light"] #bootFallback{background:#f5f5f7;color:#111114}
-      html[data-theme="light"] #bootFallback .bootIcon{background:#fff}
-    </style>
   </head>
   <body>
-    <div id="root">
-      <div id="bootFallback" role="status" aria-live="polite">
-        <div class="bootCard">
-          <div class="bootIcon">C</div>
-          <strong>Loading Crain…</strong>
-          <span>If this message stays on screen, GitHub Pages is serving the React source instead of the production Vite build. Use Settings → Pages → Source → GitHub Actions.</span>
-        </div>
-      </div>
-    </div>
-    <!-- Relative source path is correct for local Vite development. GitHub
-         Pages must deploy dist/ from the included Actions workflow. -->
-    <script type="module" src="./src/main.jsx"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

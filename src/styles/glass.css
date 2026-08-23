@@ -1,0 +1,64 @@
+.liquid-glass {
+  display: block !important;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.import-glass {
+  width: 100%;
+  background: rgba(110, 110, 120, .20) !important;
+  box-shadow:
+    0 7px 20px rgba(0, 0, 0, .08),
+    inset 0 .45px 0 rgba(255,255,255,.16),
+    inset 0 -.45px 0 rgba(0,0,0,.18) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(115%);
+  backdrop-filter: blur(14px) saturate(115%);
+}
+html[data-theme='light'] .import-glass {
+  background: rgba(255, 255, 255, .52) !important;
+  box-shadow:
+    0 7px 20px rgba(28, 48, 80, .055),
+    inset 0 .45px 0 rgba(255,255,255,.92),
+    inset 0 -.45px 0 rgba(70,76,90,.09) !important;
+}
+
+.push-glass {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(30, 115, 219, .82), rgba(12, 71, 158, .88)) !important;
+  box-shadow:
+    0 9px 24px rgba(0, 45, 112, .22),
+    inset 0 .45px 0 rgba(255,255,255,.18),
+    inset 0 -.45px 0 rgba(0,30,80,.28) !important;
+}
+html[data-theme='light'] .push-glass {
+  background: linear-gradient(180deg, rgba(45, 139, 250, .95), rgba(13, 104, 225, .96)) !important;
+  box-shadow:
+    0 10px 24px rgba(0, 91, 210, .17),
+    inset 0 .45px 0 rgba(255,255,255,.42),
+    inset 0 -.45px 0 rgba(0,55,148,.20) !important;
+}
+
+.push-button {
+  width: 100%;
+  min-height: 59px;
+  border-radius: 20px;
+  color: white;
+  background: transparent !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 16.5px;
+  font-weight: 740;
+  text-shadow: 0 1px 1px rgba(0,0,0,.14);
+}
+.push-button svg { width: 21px; height: 21px; }
+.push-button:active:not(:disabled) { background: rgba(255,255,255,.045) !important; }
+
+/* The package provides the optical lens. CSS only supplies the material tint;
+   no thick faux border or broad white highlight is painted over it. */
+@media (prefers-reduced-transparency: reduce) {
+  .import-glass { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--surface-2) !important; }
+  .push-glass { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
