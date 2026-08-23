@@ -1,4 +1,4 @@
-import { Glass } from '@samasante/liquid-glass'
+import { Component, useEffect, useState } from 'react'
 
 const opticsByVariant = {
   regular: {
@@ -37,6 +37,38 @@ const opticsByVariant = {
   },
 }
 
+class GlassBoundary extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { failed: false }
+  }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  componentDidCatch(error) {
+    console.warn('[Crain] Liquid Glass fell back to CSS material:', error)
+  }
+
+  render() {
+    if (this.state.failed) return this.props.fallback
+    return this.props.children
+  }
+}
+
+function GlassFallback({ children, className, variant, radius, style, ...props }) {
+  return (
+    <div
+      className={`liquid-glass liquid-glass--${variant} liquid-glass--fallback ${className}`.trim()}
+      style={{ borderRadius: radius, ...style }}
+      {...props}
+    >
+      {children}
+    </div>
+  )
+}
+
 export function LiquidGlass({
   children,
   className = '',
@@ -45,15 +77,49 @@ export function LiquidGlass({
   style,
   ...props
 }) {
-  return (
-    <Glass
-      className={`liquid-glass liquid-glass--${variant} ${className}`.trim()}
+  const [GlassComponent, setGlassComponent] = useState(null)
+  const [glassFailed, setGlassFailed] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    import('@samasante/liquid-glass')
+      .then((module) => {
+        if (!cancelled && module?.Glass) setGlassComponent(() => module.Glass)
+      })
+      .catch((error) => {
+        console.warn('[Crain] Could not load Liquid Glass; using CSS fallback.', error)
+        if (!cancelled) setGlassFailed(true)
+      })
+
+    return () => { cancelled = true }
+  }, [])
+
+  const fallback = (
+    <GlassFallback
+      className={className}
+      variant={variant}
       radius={radius}
-      optics={opticsByVariant[variant] || opticsByVariant.regular}
-      style={{ borderRadius: radius, ...style }}
+      style={style}
       {...props}
     >
       {children}
-    </Glass>
+    </GlassFallback>
+  )
+
+  if (glassFailed || !GlassComponent) return fallback
+
+  return (
+    <GlassBoundary fallback={fallback}>
+      <GlassComponent
+        className={`liquid-glass liquid-glass--${variant} ${className}`.trim()}
+        radius={radius}
+        optics={opticsByVariant[variant] || opticsByVariant.regular}
+        style={{ borderRadius: radius, ...style }}
+        {...props}
+      >
+        {children}
+      </GlassComponent>
+    </GlassBoundary>
   )
 }
