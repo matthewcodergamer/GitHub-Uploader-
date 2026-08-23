@@ -34,7 +34,48 @@ export async function getBranchState(token, owner, repo, branch) {
   }
 }
 
-async function fileToBase64(file) {
+export async function ensureRequestedBranch({ token, owner, repo, repoInfo, requestedBranch, onLog }) {
+  const requested = cleanPath(requestedBranch) || 'main'
+  const existing = await getBranchState(token, owner, repo, requested)
+  if (existing.exists) return existing
+
+  const defaultBranch = repoInfo.default_branch || 'main'
+  const defaultState = await getBranchState(token, owner, repo, defaultBranch)
+  if (!defaultState.exists) return null
+
+  if (requested === defaultBranch) return defaultState
+
+  onLog?.(`Branch "${requested}" does not exist. Creating it from ${defaultBranch}…`)
+  try {
+    await githubRequest(
+      token,
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/refs`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ref: `refs/heads/${requested}`, sha: defaultState.baseSha }),
+      },
+    )
+  } catch (error) {
+    // If another client created it in the same moment, simply resolve it below.
+    if (error.status !== 422) throw error
+  }
+
+  const created = await getBranchState(token, owner, repo, requested)
+  if (!created.exists) throw new Error(`Could not create branch "${requested}".`)
+  return created
+}
+
+export async function verifyPublishedCommit(token, owner, repo, branch, expectedSha) {
+  const state = await getBranchState(token, owner, repo, branch)
+  if (!state.exists) throw new Error(`GitHub accepted the upload, but branch "${branch}" could not be verified afterward.`)
+  return {
+    verified: state.baseSha === expectedSha,
+    actualSha: state.baseSha,
+  }
+}
+
+export async function fileToBase64(file) {
   const bytes = new Uint8Array(await file.arrayBuffer())
   let binary = ''
   const chunk = 0x8000
@@ -84,4 +125,4 @@ export async function initializeEmptyRepo({ token, owner, repo, repoInfo, reques
   return base
 }
 
-export { cleanPath, fileToBase64 }
+export { cleanPath }
